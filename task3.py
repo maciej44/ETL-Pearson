@@ -32,7 +32,7 @@ class Task3(CsvHandler):
         ], axis=1, inplace=True)
 
         # inner join
-        self.__final_df = pd.merge(
+        self.__df = pd.merge(
             self.__class,
             self.__test,
             how='inner',
@@ -40,49 +40,51 @@ class Task3(CsvHandler):
             right_on='class_id'
         )
 
-        self.__final_df.drop([
+        self.__df.drop([
             'id_x'
         ], axis=1, inplace=True)
 
-        # print(list(self.__final_df.columns.values))
+        # print(list(self.__df.columns.values))
 
         # change column order
-        self.__final_df = self.__final_df[[
+        self.__df = self.__df[[
             'class_id',
             'name',
             'teaching_hours',
             'id_y',
             'created_at',
             'authorized_at',
-            'test_level_id',
-            # 'test_status',
-            # 'overall_score',
-            # 'writing_score',
-            # 'reading_score'
+            'test_level_id'
         ]]
         
         # drop rows with 'authorized_at' value == Null
-        self.__final_df = self.__final_df[
-            self.__final_df.authorized_at.notnull()
+        self.__df = self.__df[
+            self.__df.authorized_at.notnull()
         ]
 
 
         # count class_test_number
-        self.__final_df['class_test_number'] = self.__final_df.groupby(
-            (self.__final_df['class_id'] != self.__final_df['class_id'].shift(1)).cumsum()
+        self.__df['class_test_number'] = self.__df.groupby(
+            (self.__df['class_id'] != self.__df['class_id'].shift(1)).cumsum()
             ).cumcount() + 1
 
         # rename final dataset columns, according to audition task
-        self.__final_df.rename(columns={
+        self.__df.rename(columns={
             'id_y': 'test_id',
             'created_at': 'test_created_at',
             'authorized_at': 'test_authorized_at',
             'test_level_id': 'test_level'
         }, inplace=True)
 
-        print(self.__final_df.head(20))
-        #print(self.__final_df.has_student_with_scored_test.unique())
-        #print(self.__final_df.loc[self.__final_df['has_student_with_scored_test'] != 1])
+        # column objects to datetime objects, change date format according to output table example
+        # doing it this way i don't lose datetime64 data_type
+        self.__df['test_created_at'] = pd.to_datetime(self.__df['test_created_at'])
+        self.__df['test_created_at'] = pd.to_datetime(self.__df['test_created_at'].dt.strftime('%Y-%m-%d'))
+        self.__df['test_authorized_at'] = pd.to_datetime(self.__df['test_authorized_at'])
+        self.__df['test_authorized_at'] = pd.to_datetime(self.__df['test_authorized_at'].dt.strftime('%Y-%m-%d'))
+        
+
+        super().save_df(self.__df, 'test_utilization.csv')
 
 
 

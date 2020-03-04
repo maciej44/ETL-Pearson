@@ -67,9 +67,19 @@ class Task4(CsvHandler):
             'overall_score': 'avg_class_test_overall_score'
         }, inplace=True)
 
-        print(self.__df)
+  
+        self.__df['avg_class_test_overall_score'] = self.__df['avg_class_test_overall_score'].apply(lambda x: round(x, 2))
+        
 
-
+        # column objects to datetime objects, change date format according to output table example
+        # doing it this way i don't lose datetime64 data_type
+        self.__df['test_created_at'] = pd.to_datetime(self.__df['test_created_at'])
+        self.__df['test_created_at'] = pd.to_datetime(self.__df['test_created_at'].dt.strftime('%Y-%m-%d'))
+        self.__df['test_authorized_at'] = pd.to_datetime(self.__df['test_authorized_at'])
+        self.__df['test_authorized_at'] = pd.to_datetime(self.__df['test_authorized_at'].dt.strftime('%Y-%m-%d'))
+        # print(self.__df.dtypes)
+        
+        super().save_df(self.__df, 'test_average_scores.csv')
 
         # print(self.__test.loc[self.__test['authorized_at'].isnull()])
         # print(self.__test.test_status.unique())
@@ -77,3 +87,5 @@ class Task4(CsvHandler):
 
 
 task4 = Task4('class.csv', 'test.csv')
+
+
