@@ -1,4 +1,4 @@
-# Scripts for Pearson IOKI Internship
+# Scripts for Pearson IOKI ETL
 
 
 To execute scripts:<br /><br />
